@@ -29,6 +29,14 @@ Keras==2.2.5
 numpy==1.17.1
 Pillow==6.1.0
 ```
+## Directory structure
+```
+ROOT
+ - jaguatirica.py
+   - destination
+   - rotated
+   - source
+```
 
 ## TO-DO
 - Error handling
