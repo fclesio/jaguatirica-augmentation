@@ -47,6 +47,8 @@ ROOT
 - Customize number of files to be generated for each function
 - Include default folders
 - Include docs in all functions
+- Normalize images
+- Generate squared images with 244 x 244
 
 
 # Why Jaguatirica (Ocelot in english)?
