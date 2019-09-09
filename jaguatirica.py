@@ -99,11 +99,11 @@ def get_rotation(image):
     images_aug = [seq.augment_image(image) for _ in range(rotation_combinations)]
 
     for i in range(0, len(images_aug) - 1):
-        imageio.imwrite(ROOT_DIR + ROTATED_DIR + f'image_rotated_{str(uuid.uuid4().hex)}.jpg', images_aug[i])
+        imageio.imwrite(ROOT_DIR + ROTATED_DIR + f'image_rotated_{str(uuid.uuid4().hex)}.jpg', images_aug[i], dpi=(244, 244))
 
     for i in range(0, len(images_aug) - 1):
         save_path = ROOT_DIR + DESTINATION_DIR + f'image_rotated_{str(uuid.uuid4().hex)}.jpg'
-        imageio.imwrite(save_path, images_aug[i])
+        imageio.imwrite(save_path, images_aug[i], dpi=(244, 244))
         logger.info(f'AUGMENTATION - Rotation - File: {save_path} saved')
 
     logger.info(f'AUGMENTATION - Rotation - {img_source} finished')
