@@ -28,7 +28,10 @@ imgaug==0.2.9
 Keras==2.2.5
 numpy==1.17.1
 Pillow==6.1.0
+tensorflow==1.14.0
+tensorflow-estimator==1.14.0
 ```
+
 ## Directory structure
 ```
 ROOT
