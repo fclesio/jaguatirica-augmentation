@@ -492,3 +492,51 @@ logger.info(f'AUGMENTATION - Apply effects - Elapsed time: {time.strftime("%H:%M
 elapsed_time_app = time.time() - start_time_app
 logger.info(f'WRAPPER - Elapsed time: {time.strftime("%H:%M:%S" , time.gmtime(elapsed_time_app))}')
 logger.info(f'WRAPPER - End - Timestamp: {time.strftime("%H:%M:%S" , time.gmtime(time.time()))}')
+
+# List all files to be resized
+resize_files = os.listdir(ROOT_DIR + DESTINATION_DIR)
+
+# Filtering out not .jpg files from the array
+array_resize_files = [s for s in resize_files if "jpg" in s]
+
+if not isinstance(array_resize_files, list):
+    raise ValueError(f'DATA PREPARATION - Files not in a list. {time.strftime("%H:%M:%S",time.gmtime(time.time()))}')
+
+logger.info(f'DATA RESIZE - Total Images: {len(array_resize_files)}')
+
+
+def get_resize_images(image):
+    original_image = cv.imread(ROOT_DIR + DESTINATION_DIR + image, cv.IMREAD_UNCHANGED)
+    path = ROOT_DIR + DESTINATION_DIR + image
+    logger.info(f'DATA RESIZE - Start resize: {path}')
+    width = 244
+    height = 244
+    dim = (width, height)
+
+    try:
+        resized = cv.resize(original_image, dim, interpolation=cv.INTER_AREA)
+        cv.imwrite(path, resized)
+    except Exception as e:
+        logger.info(f'DATA RESIZE - Erorr in resize file: {path} - Error {e}')
+
+    logger.info(f'DATA RESIZE - Finish resize: {path}')
+
+
+def main_resize_images():
+    """
+    Resize all images
+
+    """
+    pool = mp.Pool(mp.cpu_count())
+    pool.map(get_resize_images, array_resize_files)
+
+
+# Time tracking
+start_time = time.time()
+logger.info(f'DATA RESIZE - Start: {time.strftime("%H:%M:%S" , time.gmtime(start_time))}')
+
+# Call the main wrapper with multiprocessing
+main_resize_images()
+
+elapsed_time = time.time() - start_time
+logger.info(f'DATA RESIZE - Finished: {time.strftime("%H:%M:%S" , time.gmtime(elapsed_time))}')
