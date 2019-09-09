@@ -489,10 +489,6 @@ elapsed_time = time.time() - start_time
 logger.info(f'AUGMENTATION - End apply effects - Timestamp: {time.strftime("%H:%M:%S" , time.gmtime(time.time()))}')
 logger.info(f'AUGMENTATION - Apply effects - Elapsed time: {time.strftime("%H:%M:%S" , time.gmtime(elapsed_time))}')
 
-elapsed_time_app = time.time() - start_time_app
-logger.info(f'WRAPPER - Elapsed time: {time.strftime("%H:%M:%S" , time.gmtime(elapsed_time_app))}')
-logger.info(f'WRAPPER - End - Timestamp: {time.strftime("%H:%M:%S" , time.gmtime(time.time()))}')
-
 # List all files to be resized
 resize_files = os.listdir(ROOT_DIR + DESTINATION_DIR)
 
@@ -540,3 +536,7 @@ main_resize_images()
 
 elapsed_time = time.time() - start_time
 logger.info(f'DATA RESIZE - Finished: {time.strftime("%H:%M:%S" , time.gmtime(elapsed_time))}')
+
+elapsed_time_app = time.time() - start_time_app
+logger.info(f'WRAPPER - Elapsed time: {time.strftime("%H:%M:%S" , time.gmtime(elapsed_time_app))}')
+logger.info(f'WRAPPER - End - Timestamp: {time.strftime("%H:%M:%S" , time.gmtime(time.time()))}')
