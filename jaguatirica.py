@@ -64,11 +64,21 @@ if not isinstance(array_images, list):
     raise ValueError(f'DATA PREPARATION - Files not in a list. {time.strftime("%H:%M:%S",time.gmtime(time.time()))}')
 
 
-# Augmentation - Initial Rotation
 def get_rotation(image):
-    # Initial rotation where a human can read without effort.
-    # As we're using 60 degrees left and right, I'll put 120
-    # as the maximum combination of all rotations
+    """
+    Augmentation performs a initial rotation.
+
+    Initial rotation where a human can read without effort.
+    As we're using 60 degrees left and right, I'll put 120
+    as the maximum combination of all rotations
+
+    Parameters
+    -----------
+    image: string
+        path for a .jpg file
+
+    """
+
     rotation_degrees = 60
     rotation_combinations = 120
     img_source = ROOT_DIR + SOURCE_DIR + image
@@ -91,11 +101,20 @@ def get_rotation(image):
 
 
 def get_gaussian_noise(image):
-    '''Add gaussian noise to an image, sampled once per
+    """
+    Input a gaussian noise in the image
+
+    Add gaussian noise to an image, sampled once per
     pixel from a normal distribution N(0, s),
     where s is sampled per image and varies
-    between 0 and 0.05*255'''
+    between 0 and 0.05*255
 
+    Parameters
+    -----------
+    image: string
+        path for a .jpg file
+
+    """
     gaussian_noise_lower = 30
     gaussian_noise_upper = 90
     image = imageio.imread(ROOT_DIR + SOURCE_DIR + image)
@@ -109,8 +128,18 @@ def get_gaussian_noise(image):
 
 
 def get_crop_images(image):
-    ''' Crop images from each side by 0
-    to 50% (randomly chosen)'''
+    """
+    Crop the image
+
+    Crop images from each side by 0
+    to 50% (randomly chosen)
+
+    Parameters
+    -----------
+    image: string
+        path for a .jpg file
+
+    """
     crop_lower = 0
     crop_upper = 0.3
     image = imageio.imread(ROOT_DIR + SOURCE_DIR + image)
@@ -124,6 +153,16 @@ def get_crop_images(image):
 
 
 def get_flip_image(image):
+    """
+    Flip/mirror input images horizontally.
+
+    Parameters
+    -----------
+    image: string
+        path for a .jpg file
+
+    """
+
     # Horizontally flip n% of the images
     horizontal_flip_degrees = 0.2
 
@@ -150,6 +189,16 @@ def get_flip_image(image):
 
 
 def get_blur_image(image):
+    """
+    Blur the image using gaussian kernels.
+
+    Parameters
+    -----------
+    image: string
+        path for a .jpg file
+
+    """
+
     blur_sigma_lower = 0
     blur_sigma_upper = 2.5
 
@@ -164,6 +213,15 @@ def get_blur_image(image):
 
 
 def get_normalization_image(image):
+    """
+    Normalize the image making changes in contrast.
+
+    Parameters
+    -----------
+    image: string
+        path for a .jpg file
+
+    """
     normalization_lower = 0.75
     normalization_upper = 9.5
 
@@ -179,6 +237,16 @@ def get_normalization_image(image):
 
 
 def get_sharpen_image(image):
+    """
+    Augmenter that sharpens images and overlays
+    the result with the original image
+
+    Parameters
+    -----------
+    image: string
+        path for a .jpg file
+
+    """
     sharpen_alpha_lower = 0
     sharpen_alpha_upper = 1
     sharpen_lightness_lower = 0.75
@@ -196,6 +264,15 @@ def get_sharpen_image(image):
 
 
 def get_channel_image(image):
+    """
+    Add a value to all pixels in an image inside a range.
+
+    Parameters
+    -----------
+    image: string
+        path for a .jpg file
+
+    """
     add_lower = -10
     add_upper = 10
 
@@ -210,6 +287,15 @@ def get_channel_image(image):
 
 
 def get_gray_image(image):
+    """
+    Transform the image in gray scale
+
+    Parameters
+    -----------
+    image: string
+        path for a .jpg file
+
+    """
     grayscale_alpha_lower = 0.0
     grayscale_alpha_upper = 1.0
 
@@ -224,6 +310,16 @@ def get_gray_image(image):
 
 
 def get_water_image(image):
+    """
+    Include the water effect in the image. Transform images by
+    moving pixels locally around using displacement fields.
+
+    Parameters
+    -----------
+    image: string
+        path for a .jpg file
+
+    """
     transformation_alpha = 50
     transformation_sigma = 9
 
@@ -238,6 +334,17 @@ def get_water_image(image):
 
 
 def get_negative_image(image):
+    """
+    Include the "negative film" effect in the image.
+    Augmenter that increases/decreases hue and
+    saturation by random values.
+
+    Parameters
+    -----------
+    image: string
+        path for a .jpg file
+
+    """
     saturation_lower = -40
     saturation_upper = 40
 
@@ -252,7 +359,11 @@ def get_negative_image(image):
 
 
 # Multiprocessing to rotate images
-def main():
+def main_initial_rotation():
+    """
+    Main wrapper for initial rotation for all images
+
+    """
     pool = mp.Pool(mp.cpu_count())
     pool.map(get_rotation, array_images)
 
@@ -262,7 +373,7 @@ start_time = time.time()
 logger.info(f'AUGMENTATION - Rotation - Start: {time.strftime("%H:%M:%S" , time.gmtime(start_time))}')
 
 # Call the main wrapper with multiprocessing
-main()
+main_initial_rotation()
 
 elapsed_time = time.time() - start_time
 logger.info(f'AUGMENTATION - Rotation - Finished: {time.strftime("%H:%M:%S" , time.gmtime(elapsed_time))}')
