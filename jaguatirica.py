@@ -12,7 +12,6 @@ import time
 import uuid
 import shutil
 from imgaug import augmenters as iaa
-from keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 import multiprocessing as mp
 
 # Cleanup log file if exists
@@ -34,7 +33,7 @@ np.random.seed(seed=42)
 
 # ### Cleanup folders
 start_time = time.time()
-logger.info(f'FOLDERS - Cleanup folders: {start_time}')
+logger.info(f'DATA PREPARATION - Cleanup folders: {time.strftime("%H:%M:%S" , time.gmtime(start_time))}')
 
 ROOT_DIR = os.getcwd()
 
@@ -56,7 +55,11 @@ DESTINATION_DIR = '/destination/'
 ROTATED_DIR = '/rotated/'
 
 elapsed_time = time.time() - start_time
-logger.info(f'Elapsed Time - Cleanup folders: {time.strftime("%H:%M:%S" , time.gmtime(elapsed_time))}')
+logger.info(f'DATA PREPARATION - Cleanup folders - Elapsed time: {time.strftime("%H:%M:%S" ,time.gmtime(elapsed_time))}')
+
+logger.info(f'DATA PREPARATION - Source folder: {ROOT_DIR + SOURCE_DIR}')
+logger.info(f'DATA PREPARATION - Destination folder: {ROOT_DIR + DESTINATION_DIR}')
+logger.info(f'DATA PREPARATION - Rotated folder: {ROOT_DIR + ROTATED_DIR}')
 
 # List all files
 array_files = os.listdir(ROOT_DIR + SOURCE_DIR)
@@ -64,61 +67,8 @@ array_files = os.listdir(ROOT_DIR + SOURCE_DIR)
 # Filtering out not .jpg files from the array
 array_images = [s for s in array_files if "jpg" in s]
 
-
-def get_random_agumentation(image):
-    K = 100  # Number of agumentations
-    rotation_range = 60
-    width_shift_range = 0.5
-    height_shift_range = 0.5
-    shear_range = 0.1
-    zoom_range = 0.2
-    horizontal_flip = False
-
-    # Augmentation: Horizontal flip and rotation
-    datagen = ImageDataGenerator(
-        rotation_range=rotation_range,
-        width_shift_range=width_shift_range,
-        height_shift_range=height_shift_range,
-        shear_range=shear_range,
-        zoom_range=zoom_range,
-        horizontal_flip=horizontal_flip,
-        fill_mode='nearest',
-    )
-
-    # Load image and conver to array
-    img = load_img(ROOT_DIR + SOURCE_DIR + image)
-    x = img_to_array(img)
-    x = x.reshape((1,) + x.shape)
-
-    '''the .flow() command below generates batches of randomly transformed images
-    and saves the results to the `preview/` directory'''
-    i = 0
-    for batch in datagen.flow(x,
-                              batch_size=1,
-                              save_to_dir=ROOT_DIR + DESTINATION_DIR,
-                              save_prefix=f'{str(uuid.uuid4().hex)}_random_augmented',
-                              save_format='jpg'):
-        i += 1
-        if i > K:
-            break
-
-
-# Multiprocessing to generate random noise images
-def main():
-    pool = mp.Pool(mp.cpu_count())
-    pool.map(get_random_agumentation, array_images)
-
-
-# Time tracking
-start_time = time.time()
-logger.info(f'AUGMENTATION - Start file generation: {start_time}')
-
-# Call the main wrapper with multiprocessing
-main()
-
-elapsed_time = time.time() - start_time
-fetching_time = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-logger.info(f'AUGMENTATION - Random noise generation: {fetching_time}')
+if not isinstance(array_images, list):
+    raise ValueError(f'DATA PREPARATION - Error to list image files. {time.strftime("%H:%M:%S",time.gmtime(time.time()))}')
 
 
 # ### Augmentation - Initial Rotation
@@ -149,14 +99,15 @@ def main():
 
 # Time tracking
 start_time = time.time()
-logger.info(f'AUGMENTATION - Rotation: {start_time}')
+logger.info(f'AUGMENTATION - Rotation: {time.strftime("%H:%M:%S" , time.gmtime(start_time))}')
 
 # Call the main wrapper with multiprocessing
 main()
 
 elapsed_time = time.time() - start_time
-fetching_time = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-logger.info(f'AUGMENTATION - Rotation: {fetching_time}')
+logger.info(f'AUGMENTATION - Rotation: {time.strftime("%H:%M:%S" , time.gmtime(elapsed_time))}')
+
+
 
 # ### Augmentation - General functions
 #
@@ -172,7 +123,7 @@ logger.info(f'AUGMENTATION - Rotation: {fetching_time}')
 # - `get_negative_image(image, n_images)`
 # - `get_random_agumentation()`
 
-n_images = 50
+n_images = 15
 
 def get_gaussian_noise(image, n_images=n_images):
     '''Add gaussian noise to an image, sampled once per
@@ -352,11 +303,11 @@ def main():
 
 # Time tracking
 start_time = time.time()
-logger.info(f'AUGMENTATION - Start all functions: {start_time}')
+logger.info(f'AUGMENTATION - Start all functions: {time.strftime("%H:%M:%S" , time.gmtime(start_time))}')
 
 # Call the main wrapper with multiprocessing
 main()
 
 elapsed_time = time.time() - start_time
-fetching_time = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-logger.info(f'AUGMENTATION - All functions: {fetching_time}')
+logger.info(f'AUGMENTATION - All functions - Elapsed time: {time.strftime("%H:%M:%S" , time.gmtime(elapsed_time))}')
+logger.info(f'AUGMENTATION - All functions - Timestamp: {time.strftime("%H:%M:%S" , time.gmtime(time.time()))}')
