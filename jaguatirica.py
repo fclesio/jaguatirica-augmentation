@@ -2,8 +2,8 @@
 # coding: utf-8
 
 # Load image processing Libraries
-import cv2 as cv
 import imageio
+import cv2 as cv
 import imgaug as ia
 import numpy as np
 import logging
@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 ia.seed(42)
 np.random.seed(seed=42)
+n_images = 15
 
 # ### Cleanup folders
 start_time = time.time()
@@ -45,18 +46,10 @@ for folder in working_folders:
 
 SOURCE_DIR = '/source/'
 DESTINATION_DIR = '/destination/'
-
-# The main transformation will be the rotation, i.e.
-# every image will be all combinations of rotation
-# from -60 until + 60 degrees. I'll implemement
-# these fixed values because empirically I noticed
-# that these degrees can be readble for a human being
-# in front some computer without any problem or effort
 ROTATED_DIR = '/rotated/'
 
 elapsed_time = time.time() - start_time
-logger.info(f'DATA PREPARATION - Cleanup folders - Elapsed time: {time.strftime("%H:%M:%S" ,time.gmtime(elapsed_time))}')
-
+logger.info(f'DATA PREPARATION - Cleanup folders - Elapsed time: {time.strftime("%H:%M:%S",time.gmtime(elapsed_time))}')
 logger.info(f'DATA PREPARATION - Source folder: {ROOT_DIR + SOURCE_DIR}')
 logger.info(f'DATA PREPARATION - Destination folder: {ROOT_DIR + DESTINATION_DIR}')
 logger.info(f'DATA PREPARATION - Rotated folder: {ROOT_DIR + ROTATED_DIR}')
@@ -68,19 +61,23 @@ array_files = os.listdir(ROOT_DIR + SOURCE_DIR)
 array_images = [s for s in array_files if "jpg" in s]
 
 if not isinstance(array_images, list):
-    raise ValueError(f'DATA PREPARATION - Error to list image files. {time.strftime("%H:%M:%S",time.gmtime(time.time()))}')
+    raise ValueError(f'DATA PREPARATION - Files not in a list. {time.strftime("%H:%M:%S",time.gmtime(time.time()))}')
 
 
-# ### Augmentation - Initial Rotation
+# Augmentation - Initial Rotation
 def get_rotation(image):
     # Initial rotation where a human can read without effort.
     # As we're using 60 degrees left and right, I'll put 120
     # as the maximum combination of all rotations
     rotation_degrees = 60
     rotation_combinations = 120
-    image = imageio.imread(ROOT_DIR + SOURCE_DIR + image)
+    img_source = ROOT_DIR + SOURCE_DIR + image
+
+    logger.info(f'AUGMENTATION - Rotation - Starting {img_source} image')
+
+    image = imageio.imread(img_source)
     seq = iaa.Sequential([iaa.Affine(rotate=(-rotation_degrees, rotation_degrees)),
-                           ], random_order=True)
+                          ], random_order=True)
 
     images_aug = [seq.augment_image(image) for _ in range(rotation_combinations)]
 
@@ -90,42 +87,10 @@ def get_rotation(image):
     for i in range(0, len(images_aug) - 1):
         imageio.imwrite(ROOT_DIR + DESTINATION_DIR + f'image_rotated_{str(uuid.uuid4().hex)}.jpg', images_aug[i])
 
-
-# Multiprocessing to rotate images
-def main():
-    pool = mp.Pool(mp.cpu_count())
-    pool.map(get_rotation, array_images)
+    logger.info(f'AUGMENTATION - Rotation - {img_source} finished')
 
 
-# Time tracking
-start_time = time.time()
-logger.info(f'AUGMENTATION - Rotation: {time.strftime("%H:%M:%S" , time.gmtime(start_time))}')
-
-# Call the main wrapper with multiprocessing
-main()
-
-elapsed_time = time.time() - start_time
-logger.info(f'AUGMENTATION - Rotation: {time.strftime("%H:%M:%S" , time.gmtime(elapsed_time))}')
-
-
-
-# ### Augmentation - General functions
-#
-# - `get_gaussian_noise(image, n_images)`
-# - `get_crop_images(image, n_images)`
-# - `get_flip_image(image, n_images)`
-# - `get_blur_image(image, n_images)`
-# - `get_normalization_image(image, n_images)`
-# - `get_sharpen_image(image, n_images)`
-# - `get_channel_image(image, n_images)`
-# - `get_gray_image(image, n_images)`
-# - `get_water_image(image, n_images)`
-# - `get_negative_image(image, n_images)`
-# - `get_random_agumentation()`
-
-n_images = 15
-
-def get_gaussian_noise(image, n_images=n_images):
+def get_gaussian_noise(image):
     '''Add gaussian noise to an image, sampled once per
     pixel from a normal distribution N(0, s),
     where s is sampled per image and varies
@@ -143,7 +108,7 @@ def get_gaussian_noise(image, n_images=n_images):
         imageio.imwrite(ROOT_DIR + DESTINATION_DIR + f'image_gaussian_{str(uuid.uuid4().hex)}.jpg', images_aug[i])
 
 
-def get_crop_images(image, n_images=n_images):
+def get_crop_images(image):
     ''' Crop images from each side by 0
     to 50% (randomly chosen)'''
     crop_lower = 0
@@ -158,7 +123,7 @@ def get_crop_images(image, n_images=n_images):
         imageio.imwrite(ROOT_DIR + DESTINATION_DIR + f'image_crop_{str(uuid.uuid4().hex)}.jpg', images_aug[i])
 
 
-def get_flip_image(image, n_images=n_images):
+def get_flip_image(image):
     # Horizontally flip n% of the images
     horizontal_flip_degrees = 0.2
 
@@ -184,7 +149,7 @@ def get_flip_image(image, n_images=n_images):
                         images_aug_verti[i])
 
 
-def get_blur_image(image, n_images=n_images):
+def get_blur_image(image):
     blur_sigma_lower = 0
     blur_sigma_upper = 2.5
 
@@ -198,7 +163,7 @@ def get_blur_image(image, n_images=n_images):
         imageio.imwrite(ROOT_DIR + DESTINATION_DIR + f'image_blur_{str(uuid.uuid4().hex)}.jpg', images_aug[i])
 
 
-def get_normalization_image(image, n_images=n_images):
+def get_normalization_image(image):
     normalization_lower = 0.75
     normalization_upper = 9.5
 
@@ -213,7 +178,7 @@ def get_normalization_image(image, n_images=n_images):
                         images_aug[i])
 
 
-def get_sharpen_image(image, n_images=n_images):
+def get_sharpen_image(image):
     sharpen_alpha_lower = 0
     sharpen_alpha_upper = 1
     sharpen_lightness_lower = 0.75
@@ -230,7 +195,7 @@ def get_sharpen_image(image, n_images=n_images):
         imageio.imwrite(ROOT_DIR + DESTINATION_DIR + f'image_sharpen_{str(uuid.uuid4().hex)}.jpg', images_aug[i])
 
 
-def get_channel_image(image, n_images=n_images):
+def get_channel_image(image):
     add_lower = -10
     add_upper = 10
 
@@ -244,7 +209,7 @@ def get_channel_image(image, n_images=n_images):
         imageio.imwrite(ROOT_DIR + DESTINATION_DIR + f'image_channel_{str(uuid.uuid4().hex)}.jpg', images_aug[i])
 
 
-def get_gray_image(image, n_images=n_images):
+def get_gray_image(image):
     grayscale_alpha_lower = 0.0
     grayscale_alpha_upper = 1.0
 
@@ -258,7 +223,7 @@ def get_gray_image(image, n_images=n_images):
         imageio.imwrite(ROOT_DIR + DESTINATION_DIR + f'image_grey_{str(uuid.uuid4().hex)}.jpg', images_aug[i])
 
 
-def get_water_image(image, n_images=n_images):
+def get_water_image(image):
     transformation_alpha = 50
     transformation_sigma = 9
 
@@ -272,7 +237,7 @@ def get_water_image(image, n_images=n_images):
         imageio.imwrite(ROOT_DIR + DESTINATION_DIR + f'image_water_{str(uuid.uuid4().hex)}.jpg', images_aug[i])
 
 
-def get_negative_image(image, n_images=n_images):
+def get_negative_image(image):
     saturation_lower = -40
     saturation_upper = 40
 
@@ -286,28 +251,18 @@ def get_negative_image(image, n_images=n_images):
         imageio.imwrite(ROOT_DIR + DESTINATION_DIR + f'image_negative_{str(uuid.uuid4().hex)}.jpg', images_aug[i])
 
 
-# Multiprocessing with all functions
+# Multiprocessing to rotate images
 def main():
     pool = mp.Pool(mp.cpu_count())
-    pool.map(get_gaussian_noise, array_images)
-    pool.map(get_crop_images, array_images)
-    pool.map(get_flip_image, array_images)
-    pool.map(get_blur_image, array_images)
-    pool.map(get_normalization_image, array_images)
-    pool.map(get_sharpen_image, array_images)
-    pool.map(get_channel_image, array_images)
-    pool.map(get_gray_image, array_images)
-    pool.map(get_water_image, array_images)
-    pool.map(get_negative_image, array_images)
+    pool.map(get_rotation, array_images)
 
 
 # Time tracking
 start_time = time.time()
-logger.info(f'AUGMENTATION - Start all functions: {time.strftime("%H:%M:%S" , time.gmtime(start_time))}')
+logger.info(f'AUGMENTATION - Rotation - Start: {time.strftime("%H:%M:%S" , time.gmtime(start_time))}')
 
 # Call the main wrapper with multiprocessing
 main()
 
 elapsed_time = time.time() - start_time
-logger.info(f'AUGMENTATION - All functions - Elapsed time: {time.strftime("%H:%M:%S" , time.gmtime(elapsed_time))}')
-logger.info(f'AUGMENTATION - All functions - Timestamp: {time.strftime("%H:%M:%S" , time.gmtime(time.time()))}')
+logger.info(f'AUGMENTATION - Rotation - Finished: {time.strftime("%H:%M:%S" , time.gmtime(elapsed_time))}')
