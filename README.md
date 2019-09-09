@@ -40,16 +40,8 @@ ROOT
 
 ## TO-DO
 - Error handling
-- Logs
-- Packaging in PyPI
-- Multiprocessing for all files
-- Time tracking for function
-- Customize number of files to be generated for each function
 - Include default folders
-- Include docs in all functions
-- Normalize images
 - Generate squared images with 244 x 244
-- Transpose `random_generator()` from Keras to `imaug`
 
 # Why Jaguatirica (Ocelot in english)?
 [Because it's a docile, night-wise and beatiful cat from South America](https://en.wikipedia.org/wiki/Ocelot). No special reason. In doubt? See [this video](https://www.youtube.com/watch?v=597LNt7HzCo).
