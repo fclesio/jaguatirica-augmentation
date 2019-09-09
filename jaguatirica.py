@@ -27,16 +27,20 @@ logging.basicConfig(filename=f'log-jaguatirica.log',
 
 logger = logging.getLogger(__name__)
 
-
+# Definition of all constants and paths
 ia.seed(42)
 np.random.seed(seed=42)
 n_images = 15
 
-# ### Cleanup folders
+# Cleanup folders
 start_time = time.time()
 logger.info(f'DATA PREPARATION - Cleanup folders: {time.strftime("%H:%M:%S" , time.gmtime(start_time))}')
 
+# All image paths
 ROOT_DIR = os.getcwd()
+SOURCE_DIR = '/source/'
+DESTINATION_DIR = '/destination/'
+ROTATED_DIR = '/rotated/'
 
 # Create working folders
 working_folders = ['/destination', '/rotated']
@@ -44,12 +48,10 @@ for folder in working_folders:
     shutil.rmtree(ROOT_DIR + folder, ignore_errors=True)
     os.mkdir(ROOT_DIR + folder)
 
-SOURCE_DIR = '/source/'
-DESTINATION_DIR = '/destination/'
-ROTATED_DIR = '/rotated/'
 
 elapsed_time = time.time() - start_time
 logger.info(f'DATA PREPARATION - Cleanup folders - Elapsed time: {time.strftime("%H:%M:%S",time.gmtime(elapsed_time))}')
+
 logger.info(f'DATA PREPARATION - Source folder: {ROOT_DIR + SOURCE_DIR}')
 logger.info(f'DATA PREPARATION - Destination folder: {ROOT_DIR + DESTINATION_DIR}')
 logger.info(f'DATA PREPARATION - Rotated folder: {ROOT_DIR + ROTATED_DIR}')
@@ -69,7 +71,7 @@ def get_rotation(image):
     Augmentation performs a initial rotation.
 
     Initial rotation where a human can read without effort.
-    As we're using 60 degrees left and right, I'll put 120
+    As we're using 45 degrees left and right, I'll put 120
     as the maximum combination of all rotations
 
     Parameters
@@ -79,8 +81,8 @@ def get_rotation(image):
 
     """
 
-    rotation_degrees = 60
-    rotation_combinations = 120
+    rotation_degrees = 45
+    rotation_combinations = 90
     img_source = ROOT_DIR + SOURCE_DIR + image
 
     logger.info(f'AUGMENTATION - Rotation - Starting {img_source} image')
@@ -358,9 +360,10 @@ def get_negative_image(image):
         imageio.imwrite(ROOT_DIR + DESTINATION_DIR + f'image_negative_{str(uuid.uuid4().hex)}.jpg', images_aug[i])
 
 
-# Multiprocessing to rotate images
 def main_initial_rotation():
     """
+    Rotate all images
+
     Main wrapper for initial rotation for all images
 
     """
@@ -377,3 +380,35 @@ main_initial_rotation()
 
 elapsed_time = time.time() - start_time
 logger.info(f'AUGMENTATION - Rotation - Finished: {time.strftime("%H:%M:%S" , time.gmtime(elapsed_time))}')
+
+
+def main_apply_effects():
+    """
+    Apply functions in rotated images
+
+    Main wrapper for effects functions over rotated images
+
+    """
+    pool = mp.Pool(mp.cpu_count())
+    pool.map(get_gaussian_noise, array_images)
+    pool.map(get_crop_images, array_images)
+    pool.map(get_flip_image, array_images)
+    pool.map(get_blur_image, array_images)
+    pool.map(get_normalization_image, array_images)
+    pool.map(get_sharpen_image, array_images)
+    pool.map(get_channel_image, array_images)
+    pool.map(get_gray_image, array_images)
+    pool.map(get_water_image, array_images)
+    pool.map(get_negative_image, array_images)
+
+
+# Time tracking
+start_time = time.time()
+logger.info(f'AUGMENTATION - Start apply effects: {time.strftime("%H:%M:%S" , time.gmtime(start_time))}')
+
+# Call the main wrapper with multiprocessing
+main_apply_effects()
+
+elapsed_time = time.time() - start_time
+logger.info(f'AUGMENTATION - Apply effects - Elapsed time: {time.strftime("%H:%M:%S" , time.gmtime(elapsed_time))}')
+logger.info(f'AUGMENTATION - End apply effects - Timestamp: {time.strftime("%H:%M:%S" , time.gmtime(time.time()))}')
