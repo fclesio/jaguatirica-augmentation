@@ -44,7 +44,6 @@ ROOT
 ## TO-DO
 - Error handling
 - Include default folders
-- Generate squared images with 244 x 244
 
 # Why Jaguatirica (Ocelot in english)?
 [Because it's a docile, night-wise and beatiful cat from South America](https://en.wikipedia.org/wiki/Ocelot). No special reason. In doubt? See [this video](https://www.youtube.com/watch?v=597LNt7HzCo).
