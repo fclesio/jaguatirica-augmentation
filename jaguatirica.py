@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 # Definition of all constants and paths
 ia.seed(42)
 np.random.seed(seed=42)
-n_images = 30
+n_images = 50
 
 # Time tracker all script
 start_time_app = time.time()
