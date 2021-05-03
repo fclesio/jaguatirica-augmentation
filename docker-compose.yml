@@ -1,0 +1,11 @@
+analysis:
+  image: sirius_image_augmentation
+  container_name: sirius_image_augmentation
+  restart: always
+  environment:
+     - TERM=xterm
+  hostname: '127.0.0.1'
+  ports:
+     - "8889:8889"
+  volumes:
+    - .:/app

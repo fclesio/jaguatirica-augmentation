@@ -1,49 +1,68 @@
 # Jaguatirica Augmentation Wrapper
-Wrapper for image augmentation for Deep Learning tasks regarding personal ID verification and other documents.
+Wrapper for image augmentation for Deep Learning image classification tasks.
 
-## Motivation
-Generate data for Personal IDs can be a very hard task, especially to generate Deep Learning models. The objective with this tool is given a folder with some Personal IDs be able to generate at least 500 examples with slightly modified samples to have enough data to train Deep Learning algorithms.  Some IDs that can be used:
-- [European IDs](https://en.wikipedia.org/wiki/National_identity_cards_in_the_European_Economic_Area)
-- Cards from [Handwerkskammer](https://www.hwk-berlin.de/) ([Gewerbekarte and Handwerkskarte](https://www.deutsche-handwerks-zeitung.de/handwerks-und-gewerbekarten/150/3099/41407))
-- [Aufenthaltstitel](https://de.wikipedia.org/wiki/Aufenthaltstitel) (German Blue Card)
-- [Führerschein](https://de.wikipedia.org/wiki/F%C3%BChrerschein) (German Driver Licence)
-- Passports
+## How it works
+The main purpose of this wrapper is to create heavy augmented image data 
+for Deep Learning training.  
+
+All images to be augmented should be placed 
+in the `src/main/data/source` folder, and a minimum of 10 images is required. 
+
+Due to that, every single image will be created at least 2.000 
+augmented examples, all those files already split in the `train`, `test`,
+ and `validation` folders. This will be discussed in the next section. 
+
+## Preventing Data Leakage
+In almost 99% of all posts and articles about Data Augmentation, we do 
+not see the Data Leakage problem being discussed and this is a big issue 
+for Deep Learning models. 
+
+In this wrapper, there's a strict separation of the `train`, `test`,
+ and `validation` folders to isolate those datasets to avoid Data Leakage that 
+ will lead to overfitting. 
+
+In simple terms the mechanism works in the following way:
+- All images in the `reshaped` folder are included in an array and 
+shuffled (using the `seed=42` for reproducibility);
+
+- There's a fixed proportion for each set generated. For training, 
+test and validation sets the proportion is 80%, 10%, and 10%;
+
+- After this shuffle, all images receive the augmentation effect and
+ are placed in their respective folder.
+
+## Minimum Requirements
+- Docker 19+
+- Docker-Compose
  
-## Why don't you use the default Keras or common scripts for augmentation?
-When someone needs to check physically one document there are several ways to assure if some document it's valid or not:3D holograms, textures, electronic verification with chip _et cetera_.
+## Reproducibility
+All seeds has the value in ``42``, even for the libraries `imageio` and `imgaug`. 
 
-But for Deep Learning there's no way (yet) to pass such physical inputs and on top of that document images can vary a lot in terms of quality (_e.g._ blurry, contrast, color, brightness, _et cetera_).
+## Performance
+As we're using [``batch_augmentation``](https://imgaug.readthedocs.io/en/latest/source/api_multicore.html) module from `imgaug` library, by default 
+all wrapper will run in multicore. Do not use python `multiprocessing` module due 
+to the fact a child worker (i.e. different images) will be augmented more than 
+once accidentally.
 
-The idea here it' generates files than can be readable for some human being without effort instead to generate a heavily augmented image, otherwise the DL network cannot learn from examples that can fool even a human being.
+## Execution
+### Data Placement
+- Go to the folder `src/main/data/source` and delete all files contained 
 
-### It means that this wrapper won't generate a image that a human being cannot read?
-Yes. We do not need DL networks learning from noise.
+- Still in the folder `src/main/data/source` include all files that you want 
+to be augmented. The minimum amount of files that needs to be there is `10`
 
-## Requirements
-```
-opencv-python==4.1.1.26
-glob3==0.0.1
-imageio==2.5.0
-imgaug==0.2.9
-Keras==2.2.5
-numpy==1.17.1
-Pillow==6.1.0
-tensorflow==1.15.0
-tensorflow-estimator==1.14.0
-```
 
-## Directory structure
-```
-ROOT
- - jaguatirica.py
-   - destination
-   - rotated
-   - source
+### Via command line
+```bash
+$ make && docker build -t sirius_image_augmentation . && docker-compose up 
 ```
 
 ## TO-DO
-- Error handling
-- Include default folders
+- [ ] Error handling
+- [ ] Logging
+- [ ] "Tree-shaking" code
+ 
 
 # Why Jaguatirica (Ocelot in english)?
-[Because it's a docile, night-wise and beatiful cat from South America](https://en.wikipedia.org/wiki/Ocelot). No special reason. In doubt? See [this video](https://www.youtube.com/watch?v=597LNt7HzCo).
+[Because it's a docile, night-wise and beatiful cat from South America](https://en.wikipedia.org/wiki/Ocelot). 
+No special reason. In doubt? See [this video](https://www.youtube.com/watch?v=597LNt7HzCo).
