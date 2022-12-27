@@ -4,7 +4,7 @@ imgaug==0.4.0
 numpy==1.17.1
 Pillow==6.2.0
 jupyter==1.0.0
-setuptools==41.0.1
+setuptools==65.5.1
 matplotlib==3.0.3
 boto3==1.14.19
 s3fs==0.4.2
